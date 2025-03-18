@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Passion Débridée</title>
+  <style>
+    /* Styles généraux */
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #111, #222, #111);
+      color: #fff;
+      text-align: center;
+      overflow-x: hidden;
+    }
+    
+    /* Modal de vérification d'âge */
+    #ageModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(5px);
+    }
+    
+    #ageModalContent {
+      background: linear-gradient(to bottom, #222, #111);
+      padding: 30px 40px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 20px rgba(255, 0, 128, 0.3);
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    #ageModalContent h2 {
+      color: #ff3e78;
+      margin-top: 0;
+    }
+    
+    /* Container du jeu */
+    #gameContainer {
+      display: none;
+      padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    
+    /* En-tête du jeu */
+    #gameHeader {
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    #gameTitle {
+      font-size: 2.5em;
+      color: #ff3e78;
+      margin: 10px 0;
+      text-shadow: 0 0 10px rgba(255, 62, 120, 0.5);
+    }
+    
+    /* Stats et progression */
+    #statsBar {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .statItem {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .statLabel {
+      font-size: 0.9em;
+      color: #aaa;
+    }
+    
+    .statValue {
+      font-size: 1.2em;
+      color: #ff3e78;
+      font-weight: bold;
+    }
+    
+    /* Scène */
+    #scene {
+      position: relative;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    }
+    
+    #sceneDescription {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      font-style: italic;
+      text-align: center;
+      color: #ddd;
+      line-height: 1.5;
+      max-width: 700px;
+      margin: 0 auto 20px auto;
+    }
+    
+    /* Animation de transition entre les scènes */
+    .scene-transition {
+      animation: fadeInScale 0.8s ease-out;
+    }
+    
+    @keyframes fadeInScale {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    
+    #sceneText {
+      font-size: 1.2em;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      text-align: left;
+      padding: 0 15px;
+      animation: fadeIn 1s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      0% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    
+    /* Visualisation des objets */
+    #objectVisualization {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    
+    .toyContainer {
+      text-align: center;
+      margin: 0 10px;
+    }
+    
+    .toyName {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #ff3e78;
+    }
+    
+    .toy {
+      transition: all 0.3s ease;
+    }
+    
+    .toy:hover {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 8px rgba(255, 62, 120, 0.6));
+    }
+    
+    .pulseAnimation {
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.05); opacity: 0.9; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    
+    /* Boutons de choix */
+    #choices {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 25px;
+    }
+    
+    .choiceButton {
+      padding: 15px 25px;
+      background: linear-gradient(to right, #333, #444);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1.1em;
+      text-align: left;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .choiceButton:hover {
+      background: linear-gradient(to right, #ff3e78, #ff7676);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(255, 62, 120, 0.4);
+    }
+    
+    /* Inventaire et objets */
+    #inventory {
+      margin-top: 20px;
+      padding: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .inventoryItem {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      color: #ddd;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .inventoryItem:hover {
+      background: rgba(255, 62, 120, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    /* Modal pour visualiser les objets de l'inventaire */
+    #itemModal {
+      display: none;
+      position: fixed;
+      z-index: 100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    .itemModalContent {
+      background: linear-gradient(to bottom, #333, #222);
+      margin: 10% auto;
+      padding: 20px;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+      position: relative;
+    }
+    
+    .closeModal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    
+    .closeModal:hover {
+      color: #ff3e78;
+    }
+    
+    .itemVisual {
+      margin: 20px 0;
+    }
+    
+    .itemDescription {
+      color: #ddd;
+      line-height: 1.4;
+    }
+    
+    /* Effets de musique et sons */
+    #audioControls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      z-index: 100;
+      transition: all 0.3s;
+    }
+    
+    #audioControls:hover {
+      transform: scale(1.1);
+      background: rgba(255, 62, 120, 0.7);
+    }
+    
+    /* Adaptations responsives */
+    @media (max-width: 768px) {
+      .choiceButton {
+        padding: 12px 15px;
+        font-size: 1em;
+      }
+      
+      #gameTitle {
+        font-size: 1.8em;
+      }
+      
+      #statsBar {
+        flex-wrap: wrap;
+      }
+      
+      .statItem {
+        width: 45%;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Modal de vérification d'âge -->
+  <div id="ageModal">
+    <div id="ageModalContent">
+      <h2>Contenu réservé aux adultes</h2>
+      <p>Cette expérience contient des thèmes et descriptions à caractère adulte. En continuant, vous certifiez être majeur selon la législation en vigueur dans votre pays.</p>
+      <button onclick="verifyAge(true)" class="choiceButton">J'ai plus de 18 ans</button>
+      <button onclick="verifyAge(false)" class="choiceButton">Je n'ai pas l'âge requis</button>
+    </div>
+  </div>
+
+  <!-- Modal pour visualiser les objets de l'inventaire -->
+  <div id="itemModal">
+    <div class="itemModalContent">
+      <span class="closeModal" onclick="closeItemModal()">&times;</span>
+      <h3 id="itemModalTitle">Objet</h3>
+      <div id="itemModalVisual" class="itemVisual"></div>
+      <p id="itemModalDescription" class="itemDescription"></p>
+    </div>
+  </div>
+
+  <!-- Conteneur du jeu -->
+  <div id="gameContainer">
+    <div id="gameHeader">
+      <h1 id="gameTitle">Passion Débridée</h1>
+      <div id="statsBar">
+        <div class="statItem">
+          <span class="statLabel">Intimité</span>
+          <span class="statValue" id="intimacyStat">0</span>
+        </div>
+        <div class="statItem">
+          <span class="statLabel">Désir</span>
+          <span class="statValue" id="desireStat">0</span>
+        </div>
+        <div class="statItem">
+          <span class="statLabel">Confiance</span>
+          <span class="statValue" id="trustStat">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <div id="scene" class="scene-transition">
+      <div id="sceneDescription"></div>
+      <!-- Zone de visualisation des objets -->
+      <div id="objectVisualization"></div>
+      <div id="sceneText"></div>
+      <div id="choices"></div>
+    </div>
+    
+    <div id="inventory"></div>
+  </div>
+  
+  <div id="audioControls" onclick="toggleAudio()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+    </svg>
+  </div>
+
+  <audio id="backgroundMusic" loop>
+    <source src="ambient-music.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // Variables globales
+    let playerStats = {
+      intimacy: 0,
+      desire: 0,
+      trust: 0,
+      inventory: []
+    };
+    
+    let audioPlaying = false;
+    const music = document.getElementById("backgroundMusic");
+    let currentScene = ""; // Pour suivre la scène actuelle
+    let activeObjects = []; // Pour suivre les objets actuellement actifs dans la scène
+    
+    // Définition des objets érotiques avec leurs visualisations SVG
+    const eroticObjects = {
+      "Vibromasseur": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <radialGradient id="vibroGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" style="stop-color:#b83dba;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7c1f8a;stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <g>
+            <rect x="40" y="20" width="40" height="15" rx="7.5" ry="7.5" fill="#7c1f8a" />
+            <ellipse cx="60" cy="65" rx="18" ry="40" fill="url(#vibroGradient)" />
+            <circle cx="60" cy="35" r="10" fill="#7c1f8a" />
+            <circle cx="50" cy="25" r="3" fill="white" />
+            <circle cx="60" cy="25" r="3" fill="white" />
+            <circle cx="70" cy="25" r="3" fill="white" />
+          </g>
+        </svg>`,
+        description: "Un vibromasseur élégant de couleur violette avec plusieurs niveaux d'intensité. Sa surface lisse en silicone médical offre une sensation douce et agréable contre la peau. Les trois boutons permettent de contrôler les différents modes de vibration."
+      },
+      "Menottes": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="metalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#d8d8d8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#f5f5f5;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#d8d8d8;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <g>
+            <circle cx="35" cy="40" r="20" stroke="url(#metalGradient)" stroke-width="5" fill="none" />
+            <circle cx="85" cy="80" r="20" stroke="url(#metalGradient)" stroke-width="5" fill="none" />
+            <path d="M50 30 L70 70" stroke="url(#metalGradient)" stroke-width="5" fill="none" />
+          </g>
+        </svg>`,
+        description: "Une paire de menottes élégantes avec une finition argentée. Elles sont rembourrées en velours à l'intérieur pour plus de confort, tout en offrant une restriction ferme. Une petite clé argentée permet de les déverrouiller."
+      },
+      "Huile de massage": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="oilGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd700;stop-opacity:0.8" />
+              <stop offset="100%" style="stop-color:#ff8c00;stop-opacity:0.8" />
+            </linearGradient>
+          </defs>
+          <g>
+            <rect x="40" y="30" width="40" height="70" rx="5" ry="5" fill="#444" />
+            <rect x="45" y="40" width="30" height="50" fill="url(#oilGradient)" />
+            <rect x="50" y="25" width="20" height="10" rx="3" ry="3" fill="#444" />
+          </g>
+        </svg>`,
+        description: "Une huile de massage sensuelle au parfum de jasmin et de vanille. Sa texture soyeuse permet aux mains de glisser facilement sur la peau, créant une sensation de chaleur douce à chaque caresse."
+      },
+      "Plume": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="featherGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff66b3;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff99cc;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <path d="M30,90 Q60,20 90,30 Q60,60 30,90 Z" fill="url(#featherGradient)" />
+          <path d="M40,80 L60,50" stroke="white" stroke-width="1" />
+          <path d="M50,70 L70,45" stroke="white" stroke-width="1" />
+          <path d="M60,60 L75,40" stroke="white" stroke-width="1" />
+        </svg>`,
+        description: "Une plume rose délicate et douce au toucher. Parfaite pour des caresses légères qui font frissonner la peau et éveillent les sens. Chaque effleurement crée un contraste saisissant avec des touchers plus fermes."
+      },
+      "Bandeau": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <ellipse cx="60" cy="60" rx="45" ry="20" fill="#222" />
+          <path d="M15,60 Q60,90 105,60" stroke="black" stroke-width="2" fill="none"/>
+          <path d="M15,60 Q60,30 105,60" stroke="black" stroke-width="2" fill="none"/>
+        </svg>`,
+        description: "Un bandeau en soie noire d'une douceur exquise. En privant de la vue, il amplifie toutes les autres sensations, rendant chaque toucher, chaque souffle et chaque son plus intense et mystérieux."
+      },
+      "Fouet": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="handleGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#A0522D;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#8B4513;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <rect x="30" y="30" width="10" height="40" fill="url(#handleGradient)" />
+          <path d="M40,35 Q70,10 90,50" fill="none" stroke="black" stroke-width="2" />
+          <path d="M40,40 Q75,20 95,60" fill="none" stroke="black" stroke-width="2" />
+          <path d="M40,45 Q80,30 100,70" fill="none" stroke="black" stroke-width="2" />
+          <path d="M40,50 Q85,40 105,80" fill="none" stroke="black" stroke-width="2" />
+          <path d="M40,55 Q90,50 110,90" fill="none" stroke="black" stroke-width="2" />
+        </svg>`,
+        description: "Un fouet à plusieurs lanières en cuir souple. Son manche en bois poli offre une prise confortable. Il peut être utilisé pour des caresses légères ou des sensations plus intenses selon la force appliquée."
+      },
+      "God ceinture": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <linearGradient id="strapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#222;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#444;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#222;stop-opacity:1" />
+            </linearGradient>
+            <radialGradient id="dilGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" style="stop-color:#cc3399;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#990066;stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <ellipse cx="60" cy="50" rx="40" ry="25" fill="none" stroke="url(#strapGradient)" stroke-width="4" />
+          <line x1="60" y1="25" x2="60" y2="75" stroke="url(#strapGradient)" stroke-width="4" />
+          <line x1="20" y1="50" x2="100" y2="50" stroke="url(#strapGradient)" stroke-width="4" />
+          <ellipse cx="60" cy="85" rx="12" ry="25" fill="url(#dilGradient)" />
+        </svg>`,
+        description: "Un harnais ajustable en cuir noir avec un gode en silicone rose attaché. Les sangles sont confortables et maintiennent fermement le jouet en place. Le gode est légèrement courbé pour une stimulation optimale."
+      },
+      "Rosaire anal": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <radialGradient id="beadGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" style="stop-color:#3399ff;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#0066cc;stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <circle cx="60" cy="25" r="15" fill="url(#beadGradient)" />
+          <circle cx="60" cy="55" r="10" fill="url(#beadGradient)" />
+          <circle cx="60" cy="80" r="8" fill="url(#beadGradient)" />
+          <circle cx="60" cy="100" r="5" fill="url(#beadGradient)" />
+          <line x1="60" y1="40" x2="60" y2="45" stroke="#0066cc" stroke-width="3" />
+          <line x1="60" y1="65" x2="60" y2="72" stroke="#0066cc" stroke-width="3" />
+          <line x1="60" y1="88" x2="60" y2="95" stroke="#0066cc" stroke-width="3" />
+          <circle cx="60" cy="12" r="4" fill="#0066cc" />
+        </svg>`,
+        description: "Un rosaire anal composé de perles en silicone bleu de tailles dégressives. Les perles sont reliées par une tige flexible pour plus de confort. L'anneau à l'extrémité permet une manipulation facile et sécuritaire."
+      },
+      "Accessoire érotique": {
+        svg: `<svg width="120" height="120" viewBox="0 0 120 120">
+          <defs>
+            <radialGradient id="toyGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" style="stop-color:#b83dba;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#7c1f8a;stop-opacity:1" />
+            </radialGradient>
+          </defs>
+          <g>
+            <rect x="40" y="20" width="40" height="15" rx="7.5" ry="7.5" fill="#7c1f8a" />
+            <ellipse cx="60" cy="65" rx="18" ry="40" fill="url(#toyGradient)" />
+            <circle cx="60" cy="35" r="10" fill="#7c1f8a" />
+            <circle cx="50" cy="25" r="3" fill="white" />
+            <circle cx="60" cy="25" r="3" fill="white" />
+            <circle cx="70" cy="25" r="3" fill="white" />
+          </g>
+        </svg>`,
+        description: "Un vibromasseur élégant de couleur violette avec plusieurs niveaux d'intensité. Sa surface lisse en silicone médical offre une sensation douce et agréable contre la peau."
+      }
+    };
+    
+    // Définition des scènes du jeu avec embranchements plus complexes
+    const scenes = {
+      start: {
+        description: "Une chambre luxueuse, baignée d'une lumière tamisée. Une femme magnifique aux longs cheveux noirs est allongée sur un lit aux draps de soie rouge. Sa robe moulante révèle des courbes parfaites et un décolleté plongeant. Ses yeux verts vous fixent avec intensité.",
+        text: "Tu pénètres dans une chambre luxueuse, plongée dans une lumière tamisée qui révèle une silhouette féminine allongée lascivement sur un lit aux draps de soie rouge. Ses longs cheveux noirs cascadent sur ses épaules dénudées, contrastant avec sa peau claire qui semble luire dans la pénombre. Sa robe moulante échancrée dévoile des jambes interminables et un décolleté plongeant qui ne laisse que peu de place à l'imagination.<br><br>Son regard félin te transperce, ses yeux verts brillant d'un désir à peine dissimulé. Ses lèvres pulpeuses s'étirent en un sourire carnassier tandis qu'elle se redresse légèrement, cambrant son dos pour accentuer ses courbes voluptueuses. La tension sexuelle est immédiatement palpable, électrisant l'air entre vous. Chaque battement de ton cœur semble résonner dans la pièce, faisant écho au désir qui monte en toi.",
+        choices: [
+          { 
+            text: "Approcher lentement, maintenir le contact visuel", 
+            next: "approach_slow",
+            statChanges: { desire: +10, trust: +5 }
+          },
+          { 
+            text: "Approcher directement, avec assurance",
+            next: "approach_confident",
+            statChanges: { desire: +15, intimacy: +5 }
+          },
+          { 
+            text: "Rester à distance et engager la conversation", 
+            next: "stay_talk",
+            statChanges: { trust: +15 }
+          }
+        ]
+      },
+      
+      approach_slow: {
+        description: "Vous avancez à pas mesurés vers elle. La tension dans l'air s'épaissit avec chaque pas. Son regard intense ne quitte jamais le vôtre. Sa robe glisse sur sa cuisse alors qu'elle se redresse légèrement, révélant plus de peau. Son parfum de jasmin et de musc vous enveloppe.",
+        text: "Tu t'avances avec une lenteur délibérée, chacun de tes pas résonnant dans la pièce silencieuse comme le battement d'un tambour annonçant ce qui va suivre. Vos regards ne se quittent pas, créant un lien invisible dont l'intensité s'accroît à chaque seconde. Un léger parfum de jasmin et de musc t'enveloppe à mesure que tu te rapproches d'elle.<br><br>Elle se redresse lentement, sa robe glissant sur sa cuisse pour révéler davantage de peau veloutée. Sa poitrine se soulève à un rythme plus rapide, trahissant son excitation grandissante malgré son apparente nonchalance. Ses lèvres pulpeuses s'entrouvrent légèrement, la pointe de sa langue les humidifiant dans un geste inconsciemment sensuel.<br><br>\"Je commençais à me demander si tu allais oser t'approcher,\" murmure-t-elle d'une voix rauque qui déclenche un frisson le long de ta colonne vertébrale.",
+        choices: [
+          { 
+            text: "Tendre la main et effleurer son visage", 
+            next: "touch_face",
+            statChanges: { intimacy: +15, desire: +10 }
+          },
+          { 
+            text: "S'asseoir à côté d'elle sans la toucher", 
+            next: "sit_beside",
+            statChanges: { trust: +10, desire: +5 }
+          }
+        ]
+      },
+      
+      approach_confident: {
+        description: "Vous marchez vers elle d'un pas assuré. Vos yeux ne quittent pas les siens. Son regard s'écarquille légèrement avant de se plisser avec amusement. La tension entre vous est électrique. Son parfum enivrant vous enveloppe quand vous vous arrêtez devant elle.",
+        text: "Avec une assurance naturelle, tu franchis la distance qui vous sépare en quelques pas déterminés. Ton audace semble l'impressionner, ses yeux s'écarquillent légèrement avant de se plisser avec amusement et désir. La tension entre vous est électrique, presque tangible. Tu te tiens maintenant devant elle, dominant sa position assise, et tu sens son parfum enivrant t'envelopper.",
+        choices: [
+          { 
+            text: "La prendre par la main et l'inviter à se lever", 
+            next: "invite_stand",
+            statChanges: { intimacy: +10, desire: +15 }
+          },
+          { 
+            text: "S'agenouiller pour être à sa hauteur", 
+            next: "kneel_down",
+            statChanges: { trust: +15, intimacy: +5 }
+          }
+        ],
+        addItem: "Confiance en soi"
+      },
+      
+      stay_talk: {
+        description: "Vous restez à distance, créant un espace d'anticipation entre vous deux. Elle penche la tête sur le côté, intriguée par votre retenue. Ses yeux suivent chacun de vos mouvements avec un intérêt non dissimulé.",
+        text: "Tu choisis de rester à distance, créant un espace d'anticipation entre vous. \"Bonsoir,\" dis-tu d'une voix posée. \"Je ne m'attendais pas à une telle rencontre ce soir.\" Elle penche légèrement la tête, visiblement intriguée par ta retenue. \"Parfois, les meilleures choses sont celles qu'on n'attend pas,\" répond-elle d'une voix mélodieuse qui fait vibrer quelque chose en toi.",
+        choices: [
+          { 
+            text: "Demander son nom et ce qui l'amène ici", 
+            next: "ask_name",
+            statChanges: { trust: +15 }
+          },
+          { 
+            text: "Faire un pas vers elle tout en parlant", 
+            next: "step_closer",
+            statChanges: { desire: +10, trust: +5 }
+          }
+        ]
+      },
+      
+      touch_face: {
+        description: "Vos doigts s'élèvent pour effleurer sa joue. Sa peau est incroyablement douce et chaude. Elle ferme les yeux et soupire de contentement. Quand elle les rouvre, ils sont voilés d'un désir intense. Elle tourne son visage pour embrasser votre paume, sa langue traçant un petit cercle humide contre votre peau.",
+        text: "Tes doigts s'élèvent avec une délicatesse infinie pour effleurer sa joue. Sa peau est douce comme de la soie chaude sous tes doigts, irradiant une chaleur qui semble se propager jusqu'à ton bras, enflammant ton désir. Elle ferme les yeux un instant, un soupir de contentement s'échappant de ses lèvres entrouvertes. Ses longs cils projettent des ombres délicates sur ses pommettes.<br><br>Quand elle rouvre les yeux, leur intensité a changé - ils sont maintenant voilés d'un désir non dissimulé, leur vert intense assombri par la dilatation de ses pupilles. Sa main aux ongles vernis de rouge profond vient rejoindre la tienne, la maintenant contre sa joue alors qu'elle tourne légèrement son visage.<br><br>Ses lèvres pleines capturent ta paume dans un baiser langoureux, sa langue traçant un petit cercle humide contre ta peau sensible. Ce geste simple mais incroyablement érotique envoie une décharge électrique directement vers ton entrejambe.",
+        choices: [
+          { 
+            text: "T'asseoir à côté d'elle et l'attirer contre toi", 
+            next: "pull_close",
+            statChanges: { intimacy: +20, desire: +15 }
+          },
+          { 
+            text: "Te pencher pour un baiser", 
+            next: "first_kiss",
+            statChanges: { desire: +25, intimacy: +10 }
+          }
+        ]
+      },
+      
+      sit_beside: {
+        description: "Vous prenez place à ses côtés sur le lit. Le matelas s'affaisse légèrement. Une légère distance demeure entre vous, mais vous pouvez sentir la chaleur qui émane de son corps. Elle vous observe avec curiosité, appréciant visiblement votre patience.",
+        text: "Tu prends place à ses côtés, le matelas s'affaissant légèrement sous ton poids. Une distance respectueuse demeure entre vous, chargée d'électricité et d'attente. \"Je préfère prendre mon temps,\" murmures-tu. Elle acquiesce, appréciant visiblement ta patience. \"La patience est une vertu... qui peut être délicieusement récompensée,\" répond-elle en se rapprochant imperceptiblement de toi.",
+        choices: [
+          { 
+            text: "Initier une conversation plus profonde", 
+            next: "deep_talk",
+            statChanges: { trust: +20, intimacy: +5 }
+          },
+          { 
+            text: "Suggérer quelque chose d'intéressant à explorer ensemble", 
+            next: "toy_scene",
+            statChanges: { desire: +20, trust: +10 }
+          }
+        ]
+      },
+      
+      first_kiss: {
+        description: "Vous vous penchez vers elle, vos lèvres se rapprochant des siennes. Sa respiration s'accélère, ses yeux se ferment lentement. Quand vos lèvres se touchent enfin, c'est comme une explosion de sensations qui parcourt tout votre corps.",
+        text: "Incapable de résister plus longtemps à l'attraction magnétique de ses lèvres, tu te penches vers elle. Le temps semble ralentir alors que la distance entre vos visages diminue. Tu peux sentir son souffle chaud contre ta peau, percevoir le parfum enivrant qui émane d'elle, plus intense à cette proximité.<br><br>Ses yeux se ferment doucement en anticipation, ses longs cils projetant des ombres délicates sur ses joues. Lorsque vos lèvres se touchent enfin, c'est comme une décharge électrique qui parcourt ton corps entier. Ses lèvres sont douces et chaudes, accueillantes et exigeantes à la fois.<br><br>Le baiser commence doucement, presque timidement, une exploration mutuelle qui s'intensifie rapidement. Sa main remonte le long de ton bras pour venir se poser sur ta nuque, t'attirant plus près tandis que sa langue trace délicatement le contour de tes lèvres, demandant silencieusement l'accès qu'elle obtient sans résistance.<br><br>Vos langues se rencontrent dans une danse sensuelle qui fait monter le désir en toi comme une vague déferlante. Un gémissement étouffé s'échappe de sa gorge, vibrant contre tes lèvres, témoignage du plaisir qu'elle ressent à ce contact.",
+        choices: [
+          { 
+            text: "Approfondir le baiser et laisser tes mains explorer son corps", 
+            next: "explore_during_kiss",
+            statChanges: { desire: +35, intimacy: +20 }
+          },
+          { 
+            text: "Rompre doucement le baiser et suggérer quelque chose d'intéressant", 
+            next: "toy_scene",
+            statChanges: { desire: +30, trust: +15 }
+          }
+        ]
+      },
+      
+      deep_talk: {
+        description: "Une conversation intime s'établit entre vous. Sans les mots habituels de séduction, vous partagez des pensées authentiques. Ses yeux brillent d'un nouvel intérêt tandis qu'elle se rapproche subtilement.",
+        text: "Tu décides d'emprunter un chemin moins direct, initiant une conversation qui va au-delà des banalités habituelles de séduction. \"Qu'est-ce qui te fait vraiment vibrer dans la vie?\" demandes-tu, sincèrement intéressé par sa réponse.<br><br>Elle semble surprise par cette question inattendue, mais son expression s'adoucit rapidement. \"La liberté,\" répond-elle après un moment de réflexion. \"La liberté d'être exactement qui je suis, sans jugement ni attentes. De ressentir pleinement chaque émotion, chaque sensation sans retenue.\"<br><br>Cette réponse ouvre la porte à un échange étonnamment profond. Vous partagez des réflexions sur les désirs authentiques, les masques sociaux, les moments de vulnérabilité qui définissent qui nous sommes vraiment. À mesure que la conversation s'approfondit, vous vous rapprochez physiquement sans même vous en rendre compte.<br><br>\"C'est rare,\" murmure-t-elle en posant délicatement sa main sur la tienne. \"De rencontrer quelqu'un qui cherche à connaître mon esprit avant mon corps.\" La connexion qui se forme entre vous est différente mais tout aussi électrisante qu'une approche purement physique.",
+        choices: [
+          { 
+            text: "Lui demander ce qui l'attire le plus chez un partenaire", 
+            next: "deeper_connection",
+            statChanges: { trust: +30, intimacy: +20 }
+          },
+          { 
+            text: "Transformer la connexion intellectuelle en contact physique", 
+            next: "mind_to_body",
+            statChanges: { trust: +25, desire: +25, intimacy: +15 }
+          }
+        ]
+      },
+      
+      deeper_connection: {
+        description: "La conversation prend une tournure plus personnelle et intime. Elle se rapproche davantage, son genou touchant le vôtre. Ses yeux ne quittent plus les vôtres, comme si elle cherchait à lire au plus profond de votre âme.",
+        text: "\"Qu'est-ce qui t'attire le plus chez un partenaire?\" demandes-tu, ta voix légèrement plus basse qu'auparavant, créant une bulle d'intimité autour de vous.<br><br>Elle réfléchit un moment, jouant distraitement avec une mèche de ses cheveux. \"L'authenticité,\" répond-elle finalement. \"Quelqu'un qui n'a pas peur de se montrer vulnérable, qui peut être à la fois fort et tendre selon ce que le moment demande.\" Elle se rapproche imperceptiblement, son genou touchant maintenant le tien. \"Et la présence... quelqu'un qui est véritablement là, dans l'instant, avec tous ses sens éveillés.\"<br><br>Tu remarques que sa respiration s'est légèrement accélérée, que ses pupilles se sont dilatées. La tension entre vous s'est transformée - moins ouvertement sexuelle mais d'une intensité peut-être encore plus profonde.<br><br>\"Et toi?\" demande-t-elle, sa main venant délicatement se poser sur ton avant-bras. \"Qu'est-ce qui fait battre ton cœur plus vite?\"",
+        choices: [
+          { 
+            text: "Partager une vérité personnelle et vulnérable", 
+            next: "vulnerable_truth",
+            statChanges: { trust: +40, intimacy: +35 }
+          },
+          { 
+            text: "Lui dire que c'est précisément ce type de connexion qui t'attire", 
+            next: "present_connection",
+            statChanges: { trust: +35, intimacy: +30, desire: +20 }
+          }
+        ]
+      },
+      
+      vulnerable_truth: {
+        description: "Vous partagez une vérité personnelle, votre voix légèrement tremblante d'émotion. Ses yeux s'adoucissent, touchés par votre vulnérabilité. Sa main trouve la vôtre et la serre doucement en signe de compréhension.",
+        text: "Tu prends une profonde inspiration, décidant de t'ouvrir véritablement. \"J'ai toujours recherché quelque chose de plus profond que le désir physique,\" commences-tu, ta voix portant une note de vulnérabilité que tu ne cherches pas à cacher. \"Dans un monde où tout semble si superficiel et éphémère, je cherche ces rares moments où les masques tombent, où deux personnes se voient vraiment.\"<br><br>Tu marques une pause, surpris par ta propre honnêteté. \"J'ai eu des relations basées uniquement sur l'attraction physique, mais elles m'ont toujours laissé... vide, d'une certaine façon. Ce qui fait vraiment battre mon cœur, c'est cette alchimie rare où désir et connexion profonde se rencontrent.\"<br><br>Ses yeux s'adoucissent visiblement, touchés par ta vulnérabilité. Sa main trouve la tienne et la serre doucement. \"C'est exactement ce que je ressens aussi,\" murmure-t-elle. \"Et c'est tellement rare de rencontrer quelqu'un qui le comprend, qui le cherche aussi.\"<br><br>Un silence confortable s'installe entre vous, chargé non pas de tension sexuelle mais d'une intimité peut-être encore plus puissante. Son pouce caresse doucement le dos de ta main, un geste simple mais profondément connectant.",
+        choices: [
+          { 
+            text: "Te pencher doucement pour l'embrasser", 
+            next: "meaningful_kiss",
+            statChanges: { intimacy: +45, trust: +40, desire: +25 }
+          },
+          { 
+            text: "Lui proposer d'explorer une connexion plus physique", 
+            next: "sensual_suggestion",
+            statChanges: { intimacy: +40, trust: +35, desire: +30 }
+          }
+        ],
+        addItem: "Connexion authentique"
+      },
+      
+      meaningful_kiss: {
+        description: "Vos lèvres se rencontrent dans un baiser empreint de signification et de tendresse. Contrairement à un simple acte physique, ce baiser semble sceller quelque chose de plus profond entre vous.",
+        objects: ["Huile de massage"],
+        text: "Le temps semble suspendu alors que tu te penches lentement vers elle. Ce n'est pas un geste impulsif né du désir, mais quelque chose de plus profond, comme la conclusion naturelle de votre conversation intime. Ses yeux se ferment doucement à ton approche, ses lèvres s'entrouvrant légèrement en anticipation.<br><br>Lorsque vos lèvres se rencontrent enfin, le baiser est différent de tout ce que tu as pu expérimenter auparavant. Il y a bien sûr le désir physique - la douceur de ses lèvres, la chaleur de son souffle, le parfum enivrant de sa peau - mais il y a quelque chose de plus, une connexion qui transcende le simple contact corporel.<br><br>Ses mains remontent doucement le long de tes bras pour venir encadrer ton visage, son toucher aussi léger qu'une plume. Le baiser s'approfondit naturellement, sans précipitation, chaque seconde semblant dilater le temps autour de vous.<br><br>Lorsque vous vous séparez enfin, ses yeux restent fermés un instant de plus, comme pour savourer la sensation. Quand elle les ouvre, ils brillent d'une émotion nouvelle, plus profonde que le simple désir.<br><br>\"J'ai quelque chose qui pourrait approfondir encore notre connexion,\" murmure-t-elle en se levant gracieusement. Elle se dirige vers une petite commode et en sort un flacon d'huile de massage aux reflets dorés. \"Parfois, le toucher peut exprimer ce que les mots ne peuvent pas dire.\"",
+        choices: [
+          { 
+            text: "L'inviter à te masser d'abord", 
+            next: "receive_massage",
+            statChanges: { intimacy: +50, trust: +45, desire: +35 }
+          },
+          { 
+            text: "Proposer de la masser pour commencer", 
+            next: "give_massage",
+            statChanges: { intimacy: +45, trust: +40, desire: +40 }
+          }
+        ],
+        addItem: "Huile de massage"
+      },
+      
+      give_massage: {
+        description: "L'huile dorée scintille sur ses épaules nues tandis que vos mains glissent sur sa peau. Chaque toucher devient une exploration sensuelle. Ses soupirs de plaisir emplissent la pièce alors que la tension entre vous s'intensifie.",
+        objects: ["Huile de massage"],
+        text: "\"Laisse-moi prendre soin de toi,\" proposes-tu en prenant le flacon d'huile de ses mains. \"Allonge-toi.\" Ta voix est douce mais assurée, et elle sourit en acquiesçant.<br><br>Elle se tourne et te présente son dos, faisant glisser les bretelles de sa robe avec une lenteur délibérée. Le tissu tombe jusqu'à sa taille, révélant la courbe élégante de sa colonne vertébrale et la peau lisse de son dos. Elle s'allonge sur le ventre, tournant légèrement la tête pour te regarder par-dessus son épaule.<br><br>Tu verses quelques gouttes d'huile dans ta paume, appréciant sa texture soyeuse et son parfum subtil de jasmin et de vanille. La chaleur de tes mains réchauffe légèrement l'huile avant que tu ne la déposes délicatement sur ses épaules.<br><br>Au premier contact, elle frissonne légèrement, puis se détend avec un soupir de contentement. Tes mains commencent à se mouvoir sur sa peau, d'abord avec des mouvements larges et apaisants, puis en ciblant progressivement les zones de tension. Tu prends ton temps, explorant chaque creux, chaque courbe de son dos, sentant les muscles se détendre sous tes doigts.<br><br>Ses soupirs se transforment graduellement en gémissements légers lorsque tes pouces remontent le long de sa colonne vertébrale, appliquant une pression mesurée qui semble lui procurer un plaisir intense. \"Juste là,\" murmure-t-elle quand tu atteins un point particulièrement sensible entre ses omoplates. \"C'est parfait.\"<br><br>Tes mains descendent progressivement, s'aventurant vers le creux de ses reins. Sa peau luit sous l'huile, captant la lumière tamisée de la pièce. La ligne de démarcation où sa robe repose sur ses hanches devient une frontière tentante que tes doigts effleurent sans franchir... du moins pas encore.",
+        choices: [
+          { 
+            text: "Faire glisser ta main sous le tissu de sa robe", 
+            next: "beneath_fabric",
+            statChanges: { desire: +60, intimacy: +40 }
+          },
+          { 
+            text: "Lui demander de se retourner pour masser l'avant de son corps", 
+            next: "turn_over",
+            statChanges: { desire: +55, intimacy: +45 }
+          }
+        ]
+      },
+      
+      toy_scene: {
+        description: "Elle s'éloigne un instant vers une commode en bois sombre. Avec un sourire mystérieux, elle en sort un objet en silicone violet, vibrant légèrement dans sa main. Ses yeux brillent d'un éclat espiègle quand elle revient vers vous, jouant avec l'objet entre ses doigts.",
+        objects: ["Vibromasseur"],
+        text: "Elle s'écarte légèrement de toi, un sourire énigmatique aux lèvres. \"J'ai quelque chose qui pourrait rendre ce moment encore plus... intéressant,\" murmure-t-elle. D'un mouvement félin, elle se lève et se dirige vers une commode en bois d'ébène dans le coin de la pièce. Ses hanches ondulent de façon hypnotique à chaque pas.<br><br>Tu l'observes ouvrir délicatement un tiroir et en sortir un objet que tu identifies immédiatement comme un vibromasseur en silicone violet, à la forme suggestive et aux courbes étudiées. Elle le caresse du bout des doigts avant d'appuyer sur un bouton qui le fait vibrer doucement. Le léger bourdonnement emplit la pièce, promesse de plaisirs à venir.<br><br>\"Tu es partant pour un peu d'expérimentation?\" demande-t-elle en revenant vers toi, faisant glisser l'objet vibrant le long de son décolleté dans un geste délibérément provocateur. Sa respiration s'accélère visiblement à ce simple contact.",
+        choices: [
+          { 
+            text: "Lui prendre le jouet des mains pour prendre le contrôle", 
+            next: "take_toy_control",
+            statChanges: { desire: +30, intimacy: +15 }
+          },
+          { 
+            text: "L'inviter à te montrer comment elle l'utilise", 
+            next: "watch_toy_use",
+            statChanges: { desire: +35, trust: +10 }
+          }
+        ],
+        addItem: "Vibromasseur"
+      },
+      
+      take_toy_control: {
+        description: "Vous prenez le jouet de ses mains avec assurance. Le silicone est chaud et vibre contre votre paume. Ses yeux s'écarquillent d'anticipation alors que vous prenez le contrôle de la situation. Son souffle devient court quand vous approchez l'objet vibrant de sa peau.",
+        objects: ["Vibromasseur"],
+        text: "D'un geste assuré mais doux, tu lui prends le jouet des mains. \"Laisse-moi faire,\" murmures-tu d'une voix rauque. Le silicone souple et chaud vibre contre ta paume tandis que tu augmentes légèrement l'intensité en tournant le cadran à la base. Ses yeux s'écarquillent d'anticipation et de désir à ce renversement de situation.<br><br>Tu la guides délicatement vers le lit, l'invitant à s'allonger. Elle s'exécute avec une grâce féline, s'étendant sur les draps de soie, offerte à ton regard et à tes attentions. Sa respiration s'accélère déjà, sa poitrine se soulevant rapidement sous le tissu fin de sa robe.<br><br>Tu approches le jouet vibrant de sa peau, commençant par le faire glisser le long de sa gorge, puis descendant lentement vers sa clavicule. Elle frémit sous cette caresse mécanique, ses lèvres s'entrouvrant dans un soupir silencieux. Tu continues ton exploration, traçant le contour de ses seins par-dessus le tissu, t'attardant délibérément sur les pointes durcies qui tendent le tissu.<br><br>\"S'il te plaît,\" gémit-elle doucement, arquant son corps pour accentuer le contact.",
+        choices: [
+          { 
+            text: "Retirer sa robe pour continuer l'exploration", 
+            next: "undress_toy_play",
+            statChanges: { desire: +45, intimacy: +25 }
+          },
+          { 
+            text: "Taquiner son intimité à travers ses vêtements", 
+            next: "tease_toy",
+            statChanges: { desire: +40, intimacy: +20 }
+          }
+        ]
+      },
+      
+      watch_toy_use: {
+        description: "Vous vous installez confortablement, l'invitant à vous montrer ses talents. Ses yeux ne quittent pas les vôtres alors qu'elle commence à faire glisser le jouet sur son corps. La tension dans la pièce devient électrique tandis que sa respiration s'accélère.",
+        objects: ["Vibromasseur"],
+        text: "\"Montre-moi,\" dis-tu d'une voix basse, en t'asseyant sur le bord du lit. Tu veux la voir prendre du plaisir, observer chaque réaction de son corps. Un sourire carnassier étire ses lèvres pulpeuses alors qu'elle comprend ton intention.<br><br>Lentement, délibérément, elle commence à faire glisser le jouet vibrant le long de son cou, puis entre ses seins. Ses yeux ne quittent jamais les tiens, observant ta réaction à ce spectacle intime. D'un geste fluide, elle fait glisser une bretelle de sa robe, puis l'autre, révélant progressivement le haut de sa poitrine sans jamais interrompre les caresses du jouet.<br><br>Le tissu descend lentement, dévoilant ses seins parfaits dont les mamelons sont déjà dressés d'excitation. Elle passe le jouet vibrant autour de chaque aréole, évitant délibérément le contact direct avec les pointes sensibles. Son souffle se fait court, entrecoupé de légers gémissements qu'elle ne cherche pas à retenir.<br><br>\"Tu aimes ce que tu vois?\" murmure-t-elle en se cambrant légèrement, accentuant la courbe de sa poitrine. Sa main libre descend le long de son ventre, remontant lentement sa robe pour révéler ses cuisses galbées et le minuscule sous-vêtement en dentelle qui ne cache presque rien de son intimité.",
+        choices: [
+          { 
+            text: "La rejoindre et prendre le contrôle du jouet", 
+            next: "join_toy_play",
+            statChanges: { desire: +45, intimacy: +25 }
+          },
+          { 
+            text: "L'encourager à continuer pendant que tu te déshabilles", 
+            next: "watch_continue",
+            statChanges: { desire: +50, intimacy: +15 }
+          }
+        ]
+      },
+      
+      strap_on_scene: {
+        description: "Elle ouvre un coffre au pied du lit et en sort un harnais en cuir noir avec un imposant gode rose attaché. Ses yeux pétillent de malice tandis qu'elle vous présente l'objet, guettant votre réaction.",
+        objects: ["God ceinture"],
+        text: "La tension sensuelle entre vous continue de monter, mais tu sens qu'elle a encore des surprises en réserve. Comme si elle lisait dans tes pensées, elle s'écarte un moment et se dirige vers un coffre en bois sombre posé au pied du lit.<br><br>\"Je me demande si tu serais ouvert à quelque chose d'un peu... différent,\" murmure-t-elle en ouvrant le coffre. Ses mains plongent à l'intérieur et en ressortent tenant un harnais en cuir noir auquel est attaché un imposant gode en silicone rose. La lueur tamisée de la pièce fait briller le jouet comme s'il était enduit d'huile.<br><br>Elle se redresse, tenant l'objet devant elle avec assurance, ses yeux pétillant de malice tandis qu'elle guette ta réaction. \"Parfois, les rôles traditionnels méritent d'être... inversés,\" suggère-t-elle d'une voix basse et sensuelle. \"Qu'en penses-tu?\"<br><br>Le harnais se balance légèrement entre ses mains, invitation silencieuse à une expérience que tu n'avais peut-être jamais envisagée. Sa posture est confiante mais non insistante - c'est clairement une suggestion, pas une exigence.",
+        choices: [
+          { 
+            text: "Accepter avec curiosité, prêt à explorer de nouvelles sensations", 
+            next: "accept_role_reversal",
+            statChanges: { desire: +40, trust: +30, intimacy: +25 }
+          },
+          { 
+            text: "Suggérer que c'est toi qui porterais le harnais", 
+            next: "reverse_suggestion",
+            statChanges: { desire: +35, trust: +15 }
+          }
+        ],
+        addItem: "God ceinture"
+      },
+      
+      accept_role_reversal: {
+        description: "Vous acceptez sa proposition avec un mélange d'appréhension et de curiosité excitée. Elle attache le harnais avec des gestes experts, l'imposant jouet pointant fièrement devant elle. Son regard est devenu à la fois dominant et attentionné.",
+        objects: ["God ceinture", "Huile de massage"],
+        text: "\"Je suis ouvert à de nouvelles expériences,\" réponds-tu, surpris par ton propre calme malgré le frisson d'appréhension et d'excitation qui parcourt ton corps. Quelque chose dans son regard - un mélange de domination douce et d'attention bienveillante - t'inspire confiance.<br><br>Un sourire appréciateur étire ses lèvres. \"J'aime ton audace,\" murmure-t-elle en commençant à ajuster le harnais autour de ses hanches. Ses mouvements sont assurés, révélant une certaine expérience. Les sangles noires contrastent magnifiquement avec sa peau pâle alors qu'elle les serre une à une.<br><br>Une fois le harnais en place, l'imposant jouet rose pointe fièrement devant elle, changeant complètement la dynamique entre vous. Elle s'approche du lit, prenant au passage un flacon d'huile de massage sur la commode.<br><br>\"Ne t'inquiète pas,\" te rassure-t-elle en versant une généreuse quantité d'huile sur le jouet, ses doigts le caressant pour le lubrifier entièrement. \"Je serai douce... au début.\" Cette dernière précision, accompagnée d'un sourire malicieux, envoie un nouveau frisson le long de ta colonne vertébrale.<br><br>Elle s'assoit au bord du lit et te fait signe d'approcher. \"On va y aller progressivement,\" promet-elle, sa voix devenue plus douce mais toujours autoritaire. \"La clé est la relaxation. Fais-moi confiance.\"",
+        choices: [
+          { 
+            text: "T'abandonner complètement à cette nouvelle expérience", 
+            next: "complete_surrender",
+            statChanges: { trust: +45, intimacy: +40, desire: +35 }
+          },
+          { 
+            text: "Demander à procéder très lentement", 
+            next: "cautious_exploration",
+            statChanges: { trust: +35, intimacy: +30, desire: +30 }
+          }
+        ]
+      },
+      
+      complete_surrender: {
+        description: "Vous vous abandonnez entièrement entre ses mains expertes. Le plaisir inattendu de cette nouvelle expérience vous submerge par vagues croissantes. Vos gémissements de surprise se transforment progressivement en expressions d'extase pure.",
+        objects: ["God ceinture", "Huile de massage"],
+        text: "Tu décides de t'abandonner complètement à cette nouvelle expérience, fasciné par ce renversement des rôles et par la confiance que tu ressens envers elle malgré la vulnérabilité de ta position.<br><br>\"Je te fais confiance,\" murmures-tu en t'approchant d'elle, ton corps nu exposé à son regard appréciateur.<br><br>Elle te guide avec une assurance tranquille, te faisant allonger sur le côté avant de venir se positionner derrière toi. Ses mains caressent ton dos, tes hanches, descendant progressivement vers tes fesses dans un massage apaisant qui détend tes muscles. Tu sens le jouet effleurer occasionnellement l'arrière de tes cuisses, rappel constant de ce qui va suivre.<br><br>\"Respire profondément,\" souffle-t-elle à ton oreille, une main glissant entre tes jambes pour te stimuler, t'apportant un plaisir qui détourne partiellement ton attention. Ses doigts lubrifiés commencent à te préparer délicatement, s'introduisant progressivement pour habituer ton corps à cette intrusion nouvelle.<br><br>Lorsqu'elle sent que tu es prêt, elle positionne l'extrémité du jouet contre ton entrée. \"Continue de respirer,\" rappelle-t-elle alors qu'elle commence à pousser très doucement. La pression initiale cède place à une sensation étrange mais pas désagréable lorsque ton corps accepte finalement le jouet.<br><br>Elle commence par des mouvements infimes, presque imperceptibles, attentive à tes réactions. Puis, progressivement, son rythme s'intensifie à mesure que ton plaisir augmente. À ta grande surprise, lorsque l'angle change légèrement, une vague de plaisir intense te submerge - une sensation totalement nouvelle qui arrache un gémissement profond à ta gorge.<br><br>\"Là,\" murmure-t-elle avec satisfaction, ayant manifestement trouvé le point précis qui décuple ton plaisir. Sa main continue de te caresser par devant tandis que ses hanches maintiennent un rythme régulier, créant une double stimulation qui t'emmène rapidement vers des sommets de plaisir inexplorés.",
+        choices: [
+          { 
+            text: "Te laisser submerger par un orgasme d'une intensité inédite", 
+            next: "new_heights",
+            statChanges: { desire: +70, intimacy: +60, trust: +65 }
+          },
+          { 
+            text: "La supplier d'accélérer pour atteindre la libération", 
+            next: "beg_release",
+            statChanges: { desire: +75, intimacy: +50, trust: +55 }
+          }
+        ]
+      },
+      
+      new_heights: {
+        description: "Une sensation de plaisir totalement nouvelle vous submerge, plus intense que tout ce que vous avez connu auparavant. Votre corps entier se contracte alors que l'orgasme vous traverse par vagues successives, vous laissant tremblant et transformé par l'expérience.",
+        objects: ["God ceinture"],
+        text: "La double stimulation devient rapidement irrésistible. Tu sens monter en toi un plaisir d'une nature différente, plus profond, plus englobant que tout ce que tu as connu auparavant. Chaque mouvement du jouet contre ton point sensible envoie des décharges électriques à travers tout ton corps, amplifiées par les caresses expertes de sa main.<br><br>\"Laisse-toi aller,\" murmure-t-elle à ton oreille, sa voix chaude et encourageante. \"Je te sens prêt à exploser.\"<br><br>Ses paroles sont le déclencheur final. Un son guttural que tu ne reconnais pas comme le tien s'échappe de ta gorge tandis que l'orgasme te submerge. Ce n'est pas la libération habituelle, localisée - c'est une vague déferlante qui semble partir du centre de ton être pour irradier jusqu'aux extrémités de tes membres. Ton corps entier se contracte par vagues successives, chacune semblant plus intense que la précédente.<br><br>Elle maintient le rythme pendant ton orgasme, prolongeant le plaisir jusqu'à ce que ton corps n'en puisse plus. Finalement, elle ralentit progressivement, te laissant redescendre doucement de ce pic d'intensité inédit.<br><br>Tu t'effondres sur le lit, tremblant et haletant, ton esprit vidé par la puissance de cette expérience. Elle se retire délicatement et vient s'allonger à côté de toi, caressant tendrement ton visage encore crispé par le plaisir.<br><br>\"C'était... transcendant,\" parviens-tu finalement à murmurer, les mots semblant bien insuffisants pour décrire ce que tu viens de vivre. Un petit sourire satisfait se dessine sur ses lèvres tandis qu'elle dépose un baiser sur ton front moite.<br><br>\"Les plaisirs les plus intenses viennent souvent des expériences les plus inattendues,\" répond-elle doucement. \"Merci de t'être abandonné à moi.\"",
+        choices: [
+          { 
+            text: "Rester enlacés dans cette intimité nouvelle et profonde", 
+            next: "intimate_afterglow",
+            statChanges: { intimacy: +80, trust: +75, desire: +70 }
+          },
+          { 
+            text: "Lui demander comment tu pourrais lui procurer un plaisir équivalent", 
+            next: "reciprocate_pleasure",
+            statChanges: { intimacy: +75, trust: +70, desire: +75 }
+          }
+        ]
+      },
+      
+      beads_discovery: {
+        description: "D'un tiroir entrouvert, vous apercevez un rosaire anal aux perles bleues luisantes qui captent la lumière. Votre regard curieux n'échappe pas à votre partenaire qui sourit avec espièglerie.",
+        objects: ["Rosaire anal"],
+        text: "Alors que vos corps s'entrelacent sur le lit, ton regard est attiré par un tiroir de la table de nuit laissé légèrement entrouvert. À l'intérieur, tu aperçois un objet qui capte la lumière tamisée - un rosaire anal composé de perles bleues translucides, reliées par une fine tige flexible. L'objet semble presque luminescent dans la pénombre de la chambre.<br><br>Ton regard curieux n'échappe pas à ta partenaire, qui suit la direction de tes yeux. Un sourire espiègle étire ses lèvres quand elle comprend ce qui a capté ton attention.<br><br>\"Tu as l'œil,\" murmure-t-elle en se redressant pour ouvrir complètement le tiroir. Elle en sort délicatement le rosaire, le tenant entre ses doigts pour te permettre de mieux l'observer. Les perles, de tailles dégressives, brillent d'un éclat presque hypnotique.<br><br>\"Ceci,\" explique-t-elle en faisant doucement rouler les perles entre ses doigts, \"peut procurer des sensations... extraordinaires. La beauté de cet objet réside dans sa polyvalence - il peut être utilisé de différentes façons, et par n'importe lequel d'entre nous.\" Son regard s'attarde sur toi, évaluant ta réaction à cette suggestion à peine voilée.",
+        choices: [
+          { 
+            text: "Proposer de l'utiliser sur elle d'abord", 
+            next: "use_beads_on_her",
+            statChanges: { desire: +45, intimacy: +30 }
+          },
+          { 
+            text: "Avouer ta curiosité d'essayer cette nouvelle sensation", 
+            next: "curious_for_beads",
+            statChanges: { desire: +40, trust: +35, intimacy: +25 }
+          }
+        ],
+        addItem: "Rosaire anal"
+      },
+      
+      use_beads_on_her: {
+        description: "Vous prenez les perles de ses mains, appréciant leur poids et leur texture lisse. Elle s'allonge sur le ventre, anticipant le plaisir à venir. Ses hanches se soulèvent légèrement, invitation silencieuse à commencer.",
+        objects: ["Rosaire anal", "Huile de massage"],
+        text: "Tu prends doucement les perles de ses mains, appréciant leur poids et leur texture parfaitement lisse. \"J'aimerais découvrir ce plaisir à travers tes réactions d'abord,\" proposes-tu d'une voix basse qui trahit ton excitation grandissante.<br><br>Son sourire s'élargit, visiblement ravie de ta suggestion. \"Il y a du lubrifiant dans le même tiroir,\" indique-t-elle en s'allongeant gracieusement sur le ventre, les bras repliés sous son visage tourné vers toi. Ses hanches se soulèvent légèrement, invitation silencieuse à commencer.<br><br>Tu récupères le flacon d'huile de massage, parfait pour cet usage, et t'installes entre ses jambes. Tu verses une généreuse quantité sur les perles, les enduisant soigneusement. Quelques gouttes supplémentaires viennent lubrifier son intimité, la faisant frissonner d'anticipation au contact du liquide tiède.<br><br>\"Commence doucement, avec la plus petite perle,\" murmure-t-elle en écartant légèrement les jambes pour te faciliter l'accès. \"Et laisse chaque perle être acceptée complètement avant d'introduire la suivante.\"<br><br>Suivant ses conseils, tu positionnes la première perle contre son entrée. Une légère pression suffit pour que son corps l'accueille, arrachant un petit soupir de plaisir à sa gorge. Tu attends quelques secondes, lui permettant de s'habituer à cette présence, avant d'appliquer une pression constante mais douce pour faire entrer la deuxième perle, légèrement plus grosse.<br><br>Un gémissement plus prononcé accueille cette nouvelle intrusion. Ses mains agrippent les draps tandis que son corps s'adapte. \"Continue,\" encourage-t-elle d'une voix déjà voilée par le plaisir.<br><br>Perle après perle, tu poursuis cette lente invasion, fasciné par les réactions de son corps - les frissons qui parcourent sa peau, sa respiration qui s'accélère, les mouvements involontaires de ses hanches qui semblent vouloir accueillir chaque nouvelle perle plus profondément.",
+        choices: [
+          { 
+            text: "Faire lentement ressortir les perles pour intensifier son plaisir", 
+            next: "extract_beads",
+            statChanges: { desire: +55, intimacy: +35 }
+          },
+          { 
+            text: "Ajouter une stimulation supplémentaire avec tes doigts ou ta langue", 
+            next: "added_stimulation",
+            statChanges: { desire: +60, intimacy: +40 }
+          }
+        ]
+      },
+      
+      extract_beads: {
+        description: "Vous commencez à tirer doucement sur l'anneau, faisant ressortir les perles une à une. Son corps se cambre violemment à chaque extraction, des cris de plaisir intense s'échappant de sa gorge. Le spectacle de son abandon total est hypnotisant.",
+        objects: ["Rosaire anal"],
+        text: "Toutes les perles sont maintenant à l'intérieur d'elle, seul l'anneau reste visible. Tu observes sa respiration profonde et irrégulière, signe qu'elle savoure cette plénitude nouvelle. Après lui avoir laissé quelques instants pour s'habituer à cette sensation, tu décides qu'il est temps de passer à l'étape suivante.<br><br>\"Je vais les retirer maintenant,\" annonces-tu doucement, ta main saisissant l'anneau avec délicatesse. \"Dis-moi si c'est trop intense.\"<br><br>Elle tourne légèrement la tête, ses yeux mi-clos brillant d'anticipation. \"N'arrête sous aucun prétexte,\" murmure-t-elle, sa voix tremblante d'excitation contenue.<br><br>Tu commences à tirer très lentement sur l'anneau. La première perle résiste légèrement avant de franchir le seuil de son intimité. Au moment où elle s'extrait complètement, son corps entier se cambre violemment et un cri aigu s'échappe de sa gorge. Tu t'immobilises, surpris par l'intensité de sa réaction.<br><br>\"Continue, par pitié, continue,\" halète-t-elle, ses hanches bougeant frénétiquement pour inciter la prochaine perle à sortir.<br><br>Tu reprends ton mouvement, appliquant une traction constante mais douce. La deuxième perle, plus grosse que la première, provoque une réaction encore plus spectaculaire lorsqu'elle s'extrait. Son corps entier tremble, ses doigts agrippent désespérément les draps, et un long gémissement guttural semble venir des profondeurs de son être.<br><br>Le spectacle de son abandon total est hypnotisant. Tu poursuis l'extraction des perles suivantes, chacune arrachant des cris de plus en plus intenses à mesure que leur taille augmente. Son corps oscille entre tension extrême et relâchement momentané après chaque extraction, créant un rythme presque musical de plaisir paroxystique.<br><br>Lorsque l'avant-dernière perle s'apprête à sortir - la plus grosse de toutes - tu ralentis encore, prolongeant délibérément cet instant de tension ultime. Son corps entier semble vibrer d'anticipation, sa peau luisante de transpiration, ses muscles tendus à l'extrême.",
+        choices: [
+          { 
+            text: "Extraire la dernière perle tout en la pénétrant simultanément", 
+            next: "simultaneous_pleasure",
+            statChanges: { desire: +70, intimacy: +45 }
+          },
+          { 
+            text: "Retirer la dernière perle lentement pendant qu'elle atteint l'orgasme", 
+            next: "orgasmic_finale",
+            statChanges: { desire: +65, intimacy: +50 }
+          }
+        ]
+      },
+      
+      simultaneous_pleasure: {
+        description: "Tandis que vous vous positionnez pour la pénétrer, vous gardez une main sur l'anneau de la dernière perle. Dans un mouvement parfaitement synchronisé, vous entrez en elle au moment exact où la dernière perle s'extrait. Son cri d'extase pure résonne dans toute la pièce.",
+        objects: ["Rosaire anal"],
+        text: "Une idée audacieuse germe dans ton esprit - combiner deux sensations intenses pour créer un plaisir potentiellement dévastateur. Sans lâcher l'anneau de la dernière perle, tu te positionnes à l'entrée de son sexe, la tête de ton membre effleurant à peine ses lèvres humides.<br><br>Elle comprend immédiatement ton intention et un frisson d'anticipation parcourt son corps. \"Oh mon dieu, oui,\" souffle-t-elle, sa voix à peine audible tant elle est tendue par le désir.<br><br>Tu synchronises parfaitement tes mouvements - d'une main, tu commences à extraire lentement la dernière et plus grosse perle, tandis que de l'autre, tu guides ton membre pour la pénétrer progressivement. L'effet est immédiat et spectaculaire.<br><br>Au moment précis où la perle franchit le seuil de son intimité, tu t'enfonces complètement en elle d'un coup de reins puissant. Son corps entier se soulève du lit dans un arc parfait, et un cri d'extase pure - presque animal - s'échappe de sa gorge. Ses parois intimes se contractent violemment autour de toi, pulsant au rythme d'un orgasme d'une intensité rare.<br><br>Tu restes parfaitement immobile pendant quelques secondes, lui permettant de savourer pleinement cette explosion de sensations. Ses yeux sont révulsés, sa bouche ouverte dans un cri silencieux maintenant, son corps entier secoué de spasmes incontrôlables.<br><br>Lorsque les contractions commencent à s'apaiser légèrement, tu entames un mouvement lent mais profond, réveillant immédiatement une nouvelle vague de plaisir. Elle semble incapable de formuler des mots cohérents, émettant seulement des sons primitifs de plaisir absolu.<br><br>Tu augmentes progressivement le rythme, entraînant son corps encore hypersensible dans une spirale continue d'orgasmes qui semblent se chevaucher sans fin. Ses jambes tremblantes s'enroulent autour de ta taille, t'attirant encore plus profondément en elle.",
+        choices: [
+          { 
+            text: "Jouir en elle pendant qu'elle expérimente son dernier orgasme", 
+            next: "mutual_completion",
+            statChanges: { desire: +85, intimacy: +60 }
+          },
+          { 
+            text: "Ralentir pour prolonger ce moment d'extase partagée", 
+            next: "extended_ecstasy",
+            statChanges: { desire: +75, intimacy: +70 }
+          }
+        ]
+      },
+      
+      mutual_completion: {
+        description: "L'intensité de ses multiples orgasmes déclenche votre propre libération. Vos corps fusionnent dans un plaisir partagé d'une puissance inouïe. Le temps semble suspendu alors que vous atteignez ensemble les sommets du plaisir.",
+        text: "L'intensité de ses multiples orgasmes, les contractions rythmiques de son intimité autour de toi, les sons primitifs de son plaisir - tout cela devient rapidement trop pour ta propre retenue. Tu sens ton propre orgasme monter inexorablement, comme une vague de fond impossible à contenir.<br><br>Ses yeux s'ouvrent soudain, croisant ton regard. Malgré son état d'abandon total, une connexion profonde s'établit entre vous. Elle semble lire dans tes yeux l'imminence de ta libération.<br><br>\"Viens... avec moi,\" articule-t-elle difficilement entre deux respirations hachées, ses mains agrippant tes hanches pour t'attirer encore plus profondément en elle.<br><br>Cette invitation est la dernière impulsion dont tu avais besoin. Tes mouvements deviennent plus erratiques, plus profonds, plus urgents. Tu sens son corps répondre à cette intensité nouvelle, entrant dans une ultime phase d'orgasme.<br><br>Lorsque ta libération te submerge enfin, c'est avec une puissance inouïe. Chaque jet semble plus intense que le précédent, prolongé par les contractions de son intimité qui t'enveloppe parfaitement. Vos cris se mêlent dans la pièce, créant une symphonie de plaisir partagé.<br><br>Le temps semble suspendu dans cet instant d'union parfaite, vos corps fusionnés non seulement physiquement mais dans une synchronicité de sensations qui transcende l'expérience habituelle.<br><br>Finalement, l'intensité diminue progressivement, vous laissant tous deux haletants, luisants de transpiration, vos membres entrelacés dans une proximité totale. Tu t'effondres doucement sur elle, prenant soin de ne pas l'écraser de ton poids, ton visage niché dans le creux de son cou.<br><br>\"C'était...\" commences-tu, mais les mots te manquent pour décrire ce que vous venez de partager.<br><br>\"Je sais,\" murmure-t-elle simplement, ses doigts caressant tendrement ta nuque moite. \"Je sais.\"",
+        choices: [
+          { 
+            text: "Rester enlacés dans cette connexion profonde et transformatrice", 
+            next: "transcendent_connection",
+            statChanges: { intimacy: +90, trust: +85, desire: +90 }
+          }
+        ]
+      },
+      
+      transcendent_connection: {
+        description: "Vos corps épuisés restent enlacés dans un silence paisible, chacun absorbant l'expérience transformatrice que vous venez de partager. Une connexion profonde s'est établie entre vous, dépassant la simple union physique.",
+        text: "Le silence qui enveloppe la pièce n'est troublé que par le son de vos respirations qui s'apaisent progressivement. Vos corps restent enlacés, comme si la séparation était momentanément impensable, chacun absorbant l'expérience transformatrice que vous venez de partager.<br><br>Une connexion s'est établie entre vous qui dépasse largement le cadre d'une simple union physique. Dans l'abandon total du plaisir partagé, quelque chose de plus profond s'est révélé - une vulnérabilité mutuelle, une confiance absolue, une reconnaissance de l'autre dans sa totalité.<br><br>Ses doigts tracent paresseusement des motifs abstraits sur ton dos, son toucher aussi léger qu'une plume. Tu sens son cœur battre contre le tien, vos rythmes cardiaques s'alignant progressivement dans une harmonie parfaite.<br><br>\"Je n'ai jamais ressenti quelque chose d'aussi intense,\" murmure-t-elle finalement, brisant le silence avec des mots qui semblent insuffisants pour décrire ce qui vient de se passer. \"C'était comme si... comme si nos corps n'étaient plus séparés pendant un instant.\"<br><br>Tu acquiesces silencieusement contre son cou, comprenant exactement ce qu'elle veut dire. Cette fusion momentanée, cette transcendance du plaisir ordinaire pour atteindre quelque chose qui ressemble presque à une expérience spirituelle.<br><br>\"C'est rare,\" continues-tu doucement, \"de trouver quelqu'un avec qui on peut se laisser aller si complètement, sans crainte ni jugement.\"<br><br>Elle resserre son étreinte à ces mots, comme pour confirmer cette vérité partagée. Dans le calme post-orgasmique, une intimité d'une nature différente s'installe entre vous - plus profonde, plus authentique peut-être que celle née de la passion pure.<br><br>Le temps s'écoule sans que vous y prêtiez attention, vos corps s'ajustant naturellement l'un à l'autre dans une danse inconsciente de proximité et de confort. Les minutes - ou sont-ce des heures? - passent dans cette bulle de connexion mutuelle qui semble exister hors du temps ordinaire.",
+        choices: [
+          { 
+            text: "FIN - Une connexion transcendante", 
+            next: "start",
+            statChanges: { desire: 0, intimacy: 0, trust: 0 }
+          }
+        ],
+        ending: true,
+        endingType: "transcendant ultime"
+      }
+      
+      // Ajoutez d'autres scènes selon vos besoins
+    };
+
+    // Vérification d'âge
+    function verifyAge(isAdult) {
+      if (isAdult) {
+        document.getElementById("ageModal").style.display = "none";
+        document.getElementById("gameContainer").style.display = "block";
+        loadScene("start");
+        updateStats();
+      } else {
+        alert("Ce contenu est réservé aux adultes.");
+        window.location.href = "https://www.google.com";
+      }
+    }
+
+    // Chargement d'une scène
+    function loadScene(sceneId) {
+      // Vérifier si la scène existe
+      const scene = scenes[sceneId];
+      if (!scene) {
+        console.error("Erreur: Scène non trouvée: " + sceneId);
+        return;
+      }
+      
+      // Mettre à jour la scène actuelle
+      currentScene = sceneId;
+      
+      // Effet de transition
+      const sceneElement = document.getElementById("scene");
+      sceneElement.classList.remove("scene-transition");
+      void sceneElement.offsetWidth; // Force reflow
+      sceneElement.classList.add("scene-transition");
+      
+      // Mise à jour de la description et du texte
+      document.getElementById("sceneDescription").innerHTML = scene.description || "";
+      document.getElementById("sceneText").innerHTML = scene.text || "";
+      
+      // Ajout d'item à l'inventaire si nécessaire
+      if (scene.addItem) {
+        addToInventory(scene.addItem);
+      }
+      
+      // Affichage de fin si c'est une scène finale
+      if (scene.ending) {
+        showEnding(scene.endingType);
+      }
+      
+      // Affichage des objets dans la scène
+      displayObjects(scene.objects || []);
+      
+      // Création des boutons de choix
+      const choicesContainer = document.getElementById("choices");
+      choicesContainer.innerHTML = "";
+      
+      if (scene.choices && Array.isArray(scene.choices)) {
+        scene.choices.forEach(choice => {
+          if (!choice || !choice.text || !choice.next) {
+            console.error("Erreur: Choix mal formaté dans la scène: " + sceneId);
+            return;
+          }
+          
+          const btn = document.createElement("button");
+          btn.className = "choiceButton";
+          btn.textContent = choice.text;
+          btn.onclick = () => {
+            // Application des changements de stats
+            if (choice.statChanges) {
+              for (const [stat, value] of Object.entries(choice.statChanges)) {
+                updateStat(stat, value);
+              }
+            }
+            loadScene(choice.next);
+          };
+          choicesContainer.appendChild(btn);
+        });
+      } else {
+        console.error("Erreur: Pas de choix définis pour la scène: " + sceneId);
+      }
+    }
+    
+    // Affichage des objets dans la scène
+    function displayObjects(objectNames) {
+      const objectVisContainer = document.getElementById("objectVisualization");
+      objectVisContainer.innerHTML = "";
+      activeObjects = [];
+      
+      if (!objectNames || objectNames.length === 0) {
+        return;
+      }
+      
+      objectNames.forEach(objectName => {
+        if (eroticObjects[objectName]) {
+          activeObjects.push(objectName);
+          
+          const toyContainer = document.createElement("div");
+          toyContainer.className = "toyContainer";
+          
+          const toy = document.createElement("div");
+          toy.className = "toy";
+          toy.innerHTML = eroticObjects[objectName].svg;
+          
+          const toyName = document.createElement("div");
+          toyName.className = "toyName";
+          toyName.textContent = objectName;
+          
+          // Ajouter une animation de pulsation pour attirer l'attention
+          toy.classList.add("pulseAnimation");
+          
+          toyContainer.appendChild(toy);
+          toyContainer.appendChild(toyName);
+          objectVisContainer.appendChild(toyContainer);
+        }
+      });
+    }
+    
+    // Mise à jour des statistiques
+    function updateStat(stat, value) {
+      if (typeof value !== 'number') {
+        console.error("Erreur: Valeur de stat invalide: " + value);
+        return;
+      }
+      
+      switch(stat) {
+        case 'intimacy':
+          playerStats.intimacy += value;
+          break;
+        case 'desire':
+          playerStats.desire += value;
+          break;
+        case 'trust':
+          playerStats.trust += value;
+          break;
+        default:
+          console.error("Erreur: Stat inconnue: " + stat);
+          return;
+      }
+      updateStats();
+    }
+    
+    // Affichage des statistiques
+    function updateStats() {
+      document.getElementById("intimacyStat").textContent = playerStats.intimacy;
+      document.getElementById("desireStat").textContent = playerStats.desire;
+      document.getElementById("trustStat").textContent = playerStats.trust;
+    }
+    
+    // Ajout d'un item à l'inventaire
+    function addToInventory(item) {
+      if (!item) {
+        console.error("Erreur: Item invalide");
+        return;
+      }
+      
+      if (!playerStats.inventory.includes(item)) {
+        playerStats.inventory.push(item);
+        const inventoryElement = document.getElementById("inventory");
+        const itemElement = document.createElement("div");
+        itemElement.className = "inventoryItem";
+        itemElement.textContent = item;
+        itemElement.onclick = () => showItemModal(item);
+        inventoryElement.appendChild(itemElement);
+      }
+    }
+    
+    // Afficher la modal pour un item
+    function showItemModal(item) {
+      const modal = document.getElementById("itemModal");
+      const title = document.getElementById("itemModalTitle");
+      const visual = document.getElementById("itemModalVisual");
+      const description = document.getElementById("itemModalDescription");
+      
+      if (eroticObjects[item]) {
+        title.textContent = item;
+        visual.innerHTML = eroticObjects[item].svg;
+        description.textContent = eroticObjects[item].description;
+        
+        modal.style.display = "block";
+      } else {
+        console.error("Erreur: Item inconnu: " + item);
+      }
+    }
+    
+    // Fermer la modal d'item
+    function closeItemModal() {
+      document.getElementById("itemModal").style.display = "none";
+    }
+    
+    // Afficher l'écran de fin
+    function showEnding(type) {
+      let endingMessage = "";
+      
+      switch(type) {
+        case "romantique":
+        case "romantique profond":
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin romantique débloquée</h3>
+              <p>Tu as créé une connexion profonde qui va au-delà de la passion physique.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+          break;
+        case "passionné":
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin passionnée débloquée</h3>
+              <p>Tu as vécu une expérience intense et mémorable qui restera gravée dans vos mémoires.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+          break;
+        case "érotique extrême":
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin érotique extrême débloquée</h3>
+              <p>Tu as poussé l'exploration de la passion jusqu'à ses limites les plus intenses.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+          break;
+        case "transcendant":
+        case "transcendant ultime":
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin transcendante débloquée</h3>
+              <p>Vous avez atteint ensemble un niveau de plaisir et de connexion qui dépasse l'ordinaire, créant un souvenir impérissable.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+          break;
+        case "tendre":
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin tendre débloquée</h3>
+              <p>Vous avez partagé un moment de tendresse et d'attention qui a créé une connexion spéciale entre vous.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+          break;
+        default:
+          endingMessage = `
+            <div style="padding: 20px; background: rgba(255, 62, 120, 0.2); border-radius: 10px; margin-top: 20px;">
+              <h3>Fin débloquée</h3>
+              <p>Tu as terminé cette aventure passionnée avec succès.</p>
+              <p>Statistiques finales:</p>
+              <p>Intimité: ${playerStats.intimacy} | Désir: ${playerStats.desire} | Confiance: ${playerStats.trust}</p>
+              <p>Items acquis: ${playerStats.inventory.join(", ")}</p>
+            </div>
+          `;
+      }
+      
+      // Ajout du message de fin
+      document.getElementById("sceneText").innerHTML += endingMessage;
+      
+      // Afficher tous les objets utilisés dans une vitrine finale
+      const objectsUsed = playerStats.inventory.filter(item => eroticObjects[item]);
+      if (objectsUsed.length > 0) {
+        let objectsGallery = `
+          <div style="margin-top: 30px;">
+            <h4>Objets utilisés dans votre aventure:</h4>
+            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-top: 15px;">
+        `;
+        
+        objectsUsed.forEach(item => {
+          objectsGallery += `
+            <div style="text-align: center; width: 120px;">
+              ${eroticObjects[item].svg}
+              <div style="margin-top: 5px; color: #ff3e78;">${item}</div>
+            </div>
+          `;
+        });
+        
+        objectsGallery += `</div></div>`;
+        document.getElementById("sceneText").innerHTML += objectsGallery;
+      }
+    }
+    
+    // Gestion de l'audio
+    function toggleAudio() {
+      if (audioPlaying) {
+        music.pause();
+        audioPlaying = false;
+      } else {
+        music.play().catch(e => console.log("Audio playback prevented:", e));
+        audioPlaying = true;
+      }
+      
+      const audioControls = document.getElementById("audioControls");
+      if (audioPlaying) {
+        audioControls.style.background = "rgba(255, 62, 120, 0.7)";
+      } else {
+        audioControls.style.background = "rgba(0, 0, 0, 0.7)";
+      }
+    }
+    
+    // Ajout de la gestion des erreurs
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.error("Erreur détectée:", message, "à la ligne:", lineno);
+      alert("Une erreur s'est produite. Essayez de rafraîchir la page.");
+      return true;
+    };
+    
+    // Fonction pour récupérer le jeu si bloqué
+    function recoverGame() {
+      if (currentScene) {
+        console.log("Tentative de récupération avec la scène:", currentScene);
+        loadScene(currentScene);
+      } else {
+        console.log("Impossible de récupérer, retour à la scène de départ");
+        loadScene("start");
+      }
+    }
+    
+    // Ajouter un bouton de récupération en cas de blocage
+    document.addEventListener('DOMContentLoaded', function() {
+      const recoveryButton = document.createElement('button');
+      recoveryButton.textContent = "Débloquer le jeu";
+      recoveryButton.style.position = "fixed";
+      recoveryButton.style.bottom = "20px";
+      recoveryButton.style.left = "20px";
+      recoveryButton.style.zIndex = "1000";
+      recoveryButton.style.padding = "10px";
+      recoveryButton.style.background = "rgba(255, 62, 120, 0.7)";
+      recoveryButton.style.color = "white";
+      recoveryButton.style.border = "none";
+      recoveryButton.style.borderRadius = "5px";
+      recoveryButton.style.cursor = "pointer";
+      recoveryButton.onclick = recoverGame;
+      
+      document.body.appendChild(recoveryButton);
+      
+      // Fermer la modal quand on clique ailleurs
+      window.onclick = function(event) {
+        const modal = document.getElementById("itemModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      };
+    });
+</script>
+</body>
+</html>
